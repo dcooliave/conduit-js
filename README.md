@@ -4,14 +4,14 @@ Send DOM changes through a pipeline
 ```js
 conduit.observe(document.body)
   .filter('a.list-item')
-  .each(function(anchorElement, mutationDetails) {
-    console.log(anchorElement, mutationDetails)
+  .each(function(anchorElement, changes) {
+    console.log(anchorElement, changes)
   })
 
 conduit.observe(document.body)
   .attribute('data-theme')
-  .each(function(bodyElement, mutationDetails) {
-    console.log(bodyElement, mutationDetails)
+  .each(function(bodyElement, changes) {
+    console.log(bodyElement, changes)
   })
 
 conduit.observe(document.body)
@@ -22,20 +22,15 @@ conduit.observe(document.body)
 
 conduit.observe(document.body)
   .follow(['#main', 'section', 'ul#list', 'li.list-item'])
-  .each(function(listItemElement, mutationDetails) {
-    console.log(listItemElement, mutationDetails)
+  .each(function(listItemElement, changes) {
+    console.log(listItemElement, changes)
   })
 
 conduit.observe(document.body)
   .text('lorem ipsum')
-  .each(function(textNode, mutationDetails) {
-    console.log(textNode, mutationDetails)
+  .each(function(textNode, changes) {
+    console.log(textNode, changes)
   })
-
-let users = conduit.observe(node).filter(selectors.userList)
-users.follow(paths.userEmail).text(emailRegex).each(printEmail)
-users.follow(paths.userStat).attribute('data-status').each(printStatus)
-users.each(printUser)
 ```
 
 Under the hood
@@ -87,3 +82,21 @@ Connect
 ```js
 conduit.observe(document.body).filter('.result').log('debug', true)
 ```
+
+Routes
+----
+Each route produces an _element_ along with _changes_. `changes.type` will equal `match` when an element matches the route, `unmatch` when it doesn't or `change` when something changes.
+
+`.attribute(attributeName)` listen to _element_ for changes to _attributeName_.
+
+`.filter(selector)` listen to _element_ for descendents that match _selector_.
+
+`.follow(selectors)` listen to _element_ for dom trees that match _selectors_.
+
+`.text(string)` listen to _element_ for text nodes that contain _string_.
+
+Utilities
+----
+`.listen(eventName): element, eventObject` listen to element for _eventName_ events.
+
+`.each()` useful as the last route (or the pipeline's output).
