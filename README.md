@@ -97,6 +97,8 @@ Each route produces an _element_ along with _changes_. `changes.type` will equal
 
 Utilities
 ----
+`.observe(element)` start observing _element_. useful as the first route (or the pipeline's input)
+
 `.listen(eventName): element, eventObject` listen to element for _eventName_ events.
 
-`.each()` useful as the last route (or the pipeline's output).
+`.each(callback)` execute callback on each result. useful as the last route (or the pipeline's output).
