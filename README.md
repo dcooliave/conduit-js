@@ -41,12 +41,12 @@ Contruct
 ----
 Use `junction(function|object)`
 ```js
-let junc = conduit.junction(function(element, mutationDetails) {
+let junc = conduit.junction(function(element, changes) {
   doSomething(element)
 })
 
 let junc = conduit.junction({
-  observe(element, mutationDetails) {
+  observe(element, changes) {
     doSomething(element)
   },
   disconnect() {
@@ -59,8 +59,8 @@ Produce
 ----
 Use `#matched(element, data)`
 ```js
-conduit.junction(function(element, mutationDetails) {
-  let data = { ...mutationDetails, data: 'xyz' }
+conduit.junction(function(element, changes) {
+  let data = { ...changes, data: 'xyz' }
   this.matched(element, data)
 })
 ```
@@ -71,8 +71,8 @@ Use `define(name, factoryMethod)`:
 ```js
 conduit.define('log', function(name, verbose = false) {
   let logger = new Logger(name, verbose)
-  return conduit.junction(function(element, mutationDetails) {
-    logger.log(element, mutationDetails)
+  return conduit.junction(function(element, changes) {
+    logger.log(element, changes)
   })
 })
 ```
