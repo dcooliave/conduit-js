@@ -1,5 +1,5 @@
 # conduit.js
-Send DOM mutations through a pipeline
+Send DOM changes through a pipeline
 
 ```js
 conduit.observe(document.body)
