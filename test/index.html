@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
+<div id="mocha"></div>
+
+<script src="https://unpkg.com/chai/chai.js"></script>
+<script src="https://unpkg.com/mocha/mocha.js"></script>
+<script class="mocha-init">
+  mocha.setup('bdd')
+
+  function nextTick() {
+    return new Promise(resolve => {
+      setTimeout(resolve, 0)
+    })
+  }
+
+  function testRoute(route) {
+    const results = []
+    route.on('data', (...args) => {
+      results.push(args)
+    })
+    return results
+  }
+
+  function expectResult(result, target, expected) {
+    const [element, details] = result
+    chai.expect(element).to.equal(target)
+    chai.expect(details).to.deep.equal(expected)
+  }
+</script>
+
+<script src="../conduit.js"></script>
+<script src="test.junction.js"></script>
+<script src="test.observer.js"></script>
+<script src="test.attribute.js"></script>
+<script src="test.each.js"></script>
+<script src="test.filter.js"></script>
+<script src="test.follow.js"></script>
+<script src="test.listen.js"></script>
+<script src="test.text.js"></script>
+<script class="mocha-exec">
+  mocha.run()
+</script>
