@@ -42,29 +42,16 @@ const Self = {
   }
 }
 
-function conduit() {}
+function conduit(...routes) {
+  if (routes.length < 2) throw Error('invalid arguments')
+  return routes.reduce(conduit.join)
+}
 
 Object.defineProperties(conduit, {
   define: {
     value(name, ctor) {
       routes[name] = function(...args) {
-        const src = this, dest = ctor(...args)
-
-        function ondata(...data) {
-          dest.observe(...data)
-        }
-
-        function onend() {
-          src.off('data', ondata)
-          src.off('end', onend)
-          dest.disconnect()
-          dest.emit('end')
-        }
-
-        src.on('data', ondata)
-        src.on('end', onend)
-
-        return dest
+        return conduit.join(this, ctor(...args))
       }
     }
   },
@@ -83,6 +70,25 @@ Object.defineProperties(conduit, {
       if (options.disconnect) src.disconnect = options.disconnect
       src[state] = { events: {} }
       return src
+    }
+  },
+  join: {
+    value(src, dest) {
+      function ondata(...data) {
+        dest.observe(...data)
+      }
+
+      function onend() {
+        src.off('data', ondata)
+        src.off('end', onend)
+        dest.disconnect()
+        dest.emit('end')
+      }
+
+      src.on('data', ondata)
+      src.on('end', onend)
+
+      return dest
     }
   }
 })}
