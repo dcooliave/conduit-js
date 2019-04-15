@@ -1,14 +1,9 @@
 describe('#text()', function() {
   let junction, container
 
-  before(function() {
+  beforeEach(function() {
     junction = conduit.junction()
     container = document.createElement('div')
-  })
-
-  afterEach(function() {
-    junction.disconnect()
-    container.innerHTML = ''
   })
 
   it('output matched text node', function() {

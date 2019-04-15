@@ -1,4 +1,4 @@
-describe('observer()', function() {
+describe('.observer()', function() {
   let observer, container, delegate, results
 
   beforeEach(function() {

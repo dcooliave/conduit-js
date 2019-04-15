@@ -1,14 +1,9 @@
 describe('#follow()', function() {
   let junction, container, target
 
-  before(function() {
+  beforeEach(function() {
     junction = conduit.junction()
     container = document.createElement('div')
-  })
-
-  afterEach(function() {
-    junction.disconnect()
-    container.innerHTML = ''
   })
 
   it('output matched element', function() {

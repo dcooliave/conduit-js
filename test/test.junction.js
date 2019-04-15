@@ -1,7 +1,7 @@
-describe('junction()', function() {
+describe('.junction()', function() {
   let junction, container
 
-  before(function() {
+  beforeEach(function() {
     junction = conduit.junction()
     container = document.createElement('div')
   })
