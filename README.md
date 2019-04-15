@@ -39,7 +39,7 @@ Conduit connects mutation observers together to form a pipeline for complex even
 
 Contruct
 ----
-Use `junction(function|object)`
+Use `.junction(function|object)`
 ```js
 let junc = conduit.junction(function(element, changes) {
   doSomething(element)
@@ -67,7 +67,7 @@ conduit.junction(function(element, changes) {
 
 Extend
 ----
-Use `define(name, factoryMethod)`
+Use `.define(name, factoryMethod)`
 ```js
 conduit.define('log', function(name, verbose = false) {
   let logger = new Logger(name, verbose)
@@ -92,19 +92,19 @@ Routes
 ----
 Each route produces an _element_ along with _changes_. `changes.type` will equal `match` when an element matches the route, `unmatch` when it doesn't or `change` when something changes.
 
-Produce changes made to _attributeName_.
+Produce changes made to _attributeName_
 ```js
 .attribute(attributeName)
 ```
-Produce descendents that match _selector_.
+Produce descendents that match _selector_
 ```js
 .filter(selector)
 ```
-Produce dom trees that match _selectors_.
+Produce dom trees that match _selectors_
 ```js
 .follow(selectors)
 ```
-Produce text nodes that contain _string_.
+Produce text nodes that contain _string_
 ```js
 .text(string)
 ```
@@ -116,11 +116,11 @@ Start observing _element_. useful as the first route (or the pipeline's input)
 .observe(element)
 ```
 
-Listen to element for _eventName_ events. Produces _element_ and an _eventObject_.
+Listen to element for _eventName_ events. Produces _element_ and an _eventObject_
 ```js
 .listen(eventName)
 ```
-Execute callback on each result. useful as the last route (or the pipeline's output).
+Execute callback on each result. useful as the last route (or the pipeline's output)
 ```js
 .each(callback)
 ```
