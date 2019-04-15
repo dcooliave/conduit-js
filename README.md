@@ -41,11 +41,11 @@ Contruct
 ----
 Use `.junction(function|object)`
 ```js
-let junc = conduit.junction(function(element, changes) {
+let junction0 = conduit.junction(function(element, changes) {
   doSomething(element)
 })
 
-let junc = conduit.junction({
+let junction1 = conduit.junction({
   observe(element, changes) {
     doSomething(element)
   },
