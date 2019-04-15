@@ -67,7 +67,7 @@ conduit.junction(function(element, changes) {
 
 Extend
 ----
-Use `define(name, factoryMethod)`:
+Use `define(name, factoryMethod)`
 ```js
 conduit.define('log', function(name, verbose = false) {
   let logger = new Logger(name, verbose)
@@ -79,6 +79,11 @@ conduit.define('log', function(name, verbose = false) {
 
 Connect
 ----
+Use `conduit(junction0, ..., junctionN)`
+```js
+conduit(junction0, junction1, junction2)
+```
+or call routes by name.
 ```js
 conduit.observe(document.body).filter('.result').log('debug', true)
 ```
@@ -87,18 +92,35 @@ Routes
 ----
 Each route produces an _element_ along with _changes_. `changes.type` will equal `match` when an element matches the route, `unmatch` when it doesn't or `change` when something changes.
 
-`.attribute(attributeName)` listen to _element_ for changes to _attributeName_.
-
-`.filter(selector)` listen to _element_ for descendents that match _selector_.
-
-`.follow(selectors)` listen to _element_ for dom trees that match _selectors_.
-
-`.text(string)` listen to _element_ for text nodes that contain _string_.
+Produce changes made to _attributeName_.
+```js
+.attribute(attributeName)
+```
+Produce descendents that match _selector_.
+```js
+.filter(selector)
+```
+Produce dom trees that match _selectors_.
+```js
+.follow(selectors)
+```
+Produce text nodes that contain _string_.
+```js
+.text(string)
+```
 
 Utilities
 ----
-`.observe(element)` start observing _element_. useful as the first route (or the pipeline's input)
+Start observing _element_. useful as the first route (or the pipeline's input)
+```js
+.observe(element)
+```
 
-`.listen(eventName): element, eventObject` listen to element for _eventName_ events.
-
-`.each(callback)` execute callback on each result. useful as the last route (or the pipeline's output).
+Listen to element for _eventName_ events. Produces _element_ and an _eventObject_.
+```js
+.listen(eventName)
+```
+Execute callback on each result. useful as the last route (or the pipeline's output).
+```js
+.each(callback)
+```
