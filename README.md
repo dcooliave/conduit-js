@@ -14,12 +14,12 @@ Conduit connects mutation observers together to form a pipeline for complex muta
 ## Contruct
 Use `.junction(function|object)`
 ```js
-let junction0 = conduit.junction(function(element, changes) {
+let junction0 = conduit.junction(function(element, details) {
   doSomething(element)
 })
 
 let junction1 = conduit.junction({
-  observe(element, changes) {
+  observe(element, details) {
     doSomething(element)
   },
   disconnect() {
@@ -31,8 +31,8 @@ let junction1 = conduit.junction({
 ## Produce
 Use `#matched(element, data)`
 ```js
-conduit.junction(function(element, changes) {
-  let data = { ...changes, data: 'xyz' }
+conduit.junction(function(element, details) {
+  let data = { ...details, data: 'xyz' }
   this.matched(element, data)
 })
 ```
@@ -42,8 +42,8 @@ Use `.define(name, factoryMethod)`
 ```js
 conduit.define('log', function(name, verbose = false) {
   let logger = new Logger(name, verbose)
-  return conduit.junction(function(element, changes) {
-    logger.log(element, changes)
+  return conduit.junction(function(element, details) {
+    logger.log(element, details)
   })
 })
 ```
@@ -77,7 +77,7 @@ Observes changes to an attribute.
 ```js
 conduit.observe(document.body)
   .attribute('data-theme')
-  .each(function(body, details.type) {
+  .each(function(body, details) {
     console.log(body.getAttribute('data-theme'), details.type)
   })
 ```
