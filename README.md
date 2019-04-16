@@ -118,7 +118,7 @@ Observes dom trees that match a list of CSS selectors.
 conduit.observe(document.body)
   .follow(['#main', 'section', 'ul#list', 'li.list-item'])
   .each(function(node, details) {
-    console.log(node, details.type)
+    console.log(node.matches('#main > section > ul#list > li.list-item'), details.type)
   })
 ```
 
