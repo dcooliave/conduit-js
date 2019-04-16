@@ -188,19 +188,6 @@ conduit.observe(document.body)
 
 ## Utilities
 
-### `.observe(element)`
-Observes an element for changes. Useful as the first route (or the pipeline's input).
-
-#### Arguments
-1. `element` *(HTMLElement)*: A target element.
-
-#### Example
-```js
-conduit.observe(document.body).each(doSomethingWithBody)
-```
-
-----
-
 ### `.listen(eventName)`
 Observes elements that dispatch a specific event.
 
