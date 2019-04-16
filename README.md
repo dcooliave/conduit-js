@@ -89,7 +89,7 @@ conduit.observe(document.body).filter('.result').log('debug', true)
 ```
 
 ### `conduit(...junctions)`
-Connects a pipeline.
+Builds a pipeline.
 
 #### Arguments
 1. `...junctions` *(array)*: A list of junctions.
@@ -101,8 +101,6 @@ conduit(getUsers(), matchFollowers(), printMessage())
 
 ## Routes
 Each route accepts a node as input, observes changes to it, and produces a descendent as output.
-
-----
 
 ### `.attribute(attributeName)`
 Observes changes to an attribute.
