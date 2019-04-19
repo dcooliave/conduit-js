@@ -68,12 +68,12 @@ function log(el) {
 ##### `let route = conduit.junction(opts)`
 Creates a custom route.
 
-`opts` can be a *function* or *object*. Implement a function `(element, details)` to receive input. Otherwise pass an object and implement an `observe(element, details)` method as input, and optionally an `end()` method as a destructor. Call `this.matched(element, details)` to add data to the output.
+`opts` can be a *function* or *object*. Implement a function `(element, details)` to receive input. Otherwise pass an object and implement an `observe(element, details)` method as input, and optionally a `disconnect()` method as a destructor. Call `this.matched(element, details)` to add data to the output.
 
 #### example
 ```js
 function doSomething() {
-  let route = conduit.junction({ observe, end })
+  let route = conduit.junction({ observe, disconnect })
 
   function observe(element, details) {
     observeSomething(element, (target, data) => {
@@ -81,7 +81,7 @@ function doSomething() {
     })
   }
 
-  function end() {
+  function disconnect() {
     cleanupSomething()
   }
 
