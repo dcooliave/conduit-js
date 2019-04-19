@@ -33,4 +33,20 @@ describe('#text()', function() {
       type: 'unmatch'
     })
   })
+
+  it('output changed text node', async function() {
+    const test = testRoute(junction.text('xyz'))
+
+    const target = container.appendChild(document.createTextNode(''))
+    junction.observe(container)
+    target.data = 'abc'
+    target.data = 'xyz'
+    await nextTick()
+
+    const [, result] = test
+
+    expectResult(result, target, {
+      type: 'change'
+    })
+  })
 })
