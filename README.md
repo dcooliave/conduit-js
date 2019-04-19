@@ -2,217 +2,232 @@
 Send DOM changes through a pipeline.
 
 ```js
-conduit.observe(document.body) // start tracking changes to body
-  .filter('a.list-item') // observe added/removed anchors
-  .attribute('href') // observe changes to href
-  .each(callback) // get results
+// Watch for anchors and get notified of changes to href.
+conduit.observe(document.body)
+  .filter('a.list-item')
+  .attribute('href')
+  .each(callback)
 ```
 
 ## Under the hood
 Conduit connects mutation observers together to form a pipeline for complex mutation processing.
 
-## Contruct
+## methods
 
-### `.junction(path)`
-Accepts input and produces output.
+- [conduit](#conduit)
+- [observe](#observe)
+- [junction](#junction)
+- [define](#define)
+- [attribute](#attribute)
+- [filter](#filter)
+- [follow](#follow)
+- [text](#text)
+- [listen](#listen)
+- [each](#each)
 
-#### Arguments
-1. `path` *(function|object)*: The function to invoke on the input. If path is an object, `path.observe` will be used for input, and `path.end` for cleanup.
+### conduit
 
-#### Output
-1. `element` The observed element.
-2. `details` Details about the mutation.
+##### `conduit(route1, route2, ..., routeN)`
+Builds a pipeline from a series of routes. Returns the last route in the pipeline.
 
-#### Example
+#### example
 ```js
-let junction1 = conduit.junction(function(element, details) {
-  doSomething(element)
-})
+let one = conduit.junction(stepOne)
+let two = conduit.junction(stepTwo)
+let three = conduit.junction(stepThree)
 
-let junction2 = conduit.junction({
-  observe(element, details) {
-    doSomething(element)
-  },
-  disconnect() {
-    cleanup()
+conduit(one, two, three)
+```
+
+### observe
+
+##### `conduit.observe(element)`
+Useful as a first route (or a pipeline's input). Outputs `(element)` after next tick.
+
+#### example
+```js
+// start a pipeline from the body
+let observable = conduit.observe(document.body)
+
+// create a route for spans and anchors
+let routeA = observable.filter('span, a')
+
+// create a route for images
+let routeB = observable.filter('img')
+
+routeA.each(log)
+routeB.each(log)
+
+function log(el) {
+  console.log(el)
+}
+```
+
+### junction
+
+##### `let route = conduit.junction(opts)`
+Creates a custom route.
+
+`opts` can be a *function* or *object*. Implement a function `(element, details)` to receive input. Otherwise pass an object and implement an `observe(element, details)` method as input, and optionally an `end()` method as a destructor. Call `this.matched(element, details)` to add data to the output.
+
+#### example
+```js
+function doSomething() {
+  let route = conduit.junction({ observe, end })
+
+  function observe(element, details) {
+    observeSomething(element, (target, data) => {
+      this.matched(target, { ...data, abc: 'xyz' })
+    })
   }
+
+  function end() {
+    cleanupSomething()
+  }
+
+  return route
+}
+
+conduit(one, two, doSomething(), three)
+```
+
+### define
+
+##### `conduit.define(name, routeFactory)`
+Creates a mixin for routes.
+
+Specify the route's alias as `name` and a function that creates the route as `routeFactory`. Pipelines can then be extended with a new route by calling its alias.
+
+#### example
+```js
+// highlights elements
+conduit.define('paint', function(foreground, background) {
+  return conduit.junction(function(element, details) {
+    if (details.type == 'match') {
+      element.style.color = foreground
+      element.style.background = background
+    }
+    this.matched(element, details)
+  })
+})
+
+conduit.observe(document.body).filter('div').paint('red', 'blue')
+```
+
+### attribute
+
+##### `route.attribute(name)`
+Observes an element for changes to an attribute.
+
+Set `name` to the attribute name. Outputs `(element, details)` where `element` is the mutation target and `details` is an object. `details.type` will equal `match` if the attribute was set, `unmatch` if it was removed, or `change` if the value was changed.
+
+#### example
+```js
+// log body when its 'theme' changes
+conduit.observe(document.body).attribute('theme').each(eachResult)
+
+function eachResult(element, details) {
+  console.log(element, details)
+}
+
+document.body.setAttribute('theme', 'red')
+document.querySelector('button').onclick = function() {
+  document.body.setAttribute('theme', 'blue')
+}
+```
+
+### filter
+
+##### `route.filter(selector)`
+Observes an element for a particular descendent.
+
+Specify a valid CSS selector as `selector`. Outputs `(element, details)` where `element` is the node that was added or removed, and `details` is an object. `details.type` will equal `match` if the node was added or `unmatch` if it was removed.
+
+#### example
+```js
+// log anchors and divs that are added to the document
+conduit.observe(document.body).filter('a, div').each(printUrl)
+
+function printUrl(element, details) {
+  if (details.type == 'match')
+    console.log(element)
+}
+```
+
+### follow
+
+##### `route.follow([selector0, selector1, ..., selectorN])`
+Observes a element for a particular hierarchical structure.
+
+Specify an array of valid CSS selectors. Outputs `(element, details)` where `element` is a descendent that matches the last selector, and `details` is an object. `details.type` will equal `match` if the node was added or `unmatch` if it was removed.
+
+#### example
+```js
+// log anchors that are added to a subtree
+let route = conduit.observe(document.body).follow(['main', 'section', 'div', 'a.nav'])
+
+route.each(function(element, details) {
+  if (details.type == 'match')
+    console.assert(element.matches('main > section > div > a.nav'))
 })
 ```
 
-## Produce
+### text
 
-### `#matched(element, details)`
-Produces output.
+##### `route.text(string)`
+Observes a element for text nodes that contain or match a string.
 
-#### Arguments
-1. `element` *(HTMLElement)*: The node that changed.
-2. `details` *(object)* Details about the mutation.
+`string` can be a String or RegExp. Outputs `(element, details)` where `element` is a text node and `details` is an object. `details.type` will equal `match` if the node contains the string, `unmatch` if the node doesn't match, or `change` if the node matches and the textual content was changed.
 
 #### Example
 ```js
-conduit.junction(function(element, details) {
-  let data = { ...changes, name: 'xyz' }
-  this.matched(element, data)
-})
-```
-
-## Extend
-
-### `.define(name, factoryMethod)`
-Adds a mixin for routes.
-
-#### Arguments
-1. `name` *(string)*: The name of the route.
-2. `factoryMethod` *(function)* A junction constructor.
-
-#### Example
-```js
-conduit.define('log', function(name, verbose = false) {
-  let logger = new Logger(name, verbose)
-  return conduit.junction(function(element, changes) {
-    logger.log(element, changes)
-  })
-})
-```
-
-## Connect
-
-### `.observe(element)`
-Observes an element for changes. Useful as the first route (or the pipeline's input).
-
-#### Arguments
-1. `element` *(HTMLElement)*: A target element.
-
-#### Example
-```js
-conduit.observe(document.body).filter('.result').log('debug', true)
-```
-
-### `conduit(...junctions)`
-Builds a pipeline.
-
-#### Arguments
-1. `...junctions` *(array)*: A list of junctions.
-
-### Example
-```js
-conduit(getUsers(), matchFollowers(), printMessage())
-```
-
-## Routes
-Each route accepts a node as input, observes changes to it, and produces a descendent as output.
-
-### `.attribute(attributeName)`
-Observes changes to an attribute.
-
-#### Arguments
-1. `attributeName` *(string)*: The name of an attribute node.
-
-#### Output
-1. `element` The observed element.
-2. `details` Details about the mutation. `details.type` will equal `matched` if the attribute was set, `unmatched` if it was removed, or `changed` if the value was changed.
-
-#### Example
-```js
-conduit.observe(document.body)
-  .attribute('data-theme')
-  .each(function(body, details.type) {
-    console.log(body.getAttribute('data-theme'), details.type)
-  })
-```
-
-----
-
-### `.filter(selector)`
-Observes descendents that match a CSS selector.
-
-#### Arguments
-1. `selector` *(string)*: A CSS selector.
-
-#### Output
-1. `element` The observed element.
-2. `details` Details about the mutation. `details.type` will equal `matched` if the node was added or `unmatched` if it was removed.
-
-#### Example
-```js
-conduit.observe(document.body)
-  .filter('a.list-item')
-  .each(function(anchor, details) {
-    console.log(document.body.contains(anchor), details.type)
-  })
-```
-
-----
-
-### `.follow(selectors)`
-Observes dom trees that match a list of CSS selectors.
-
-#### Arguments
-1. `selectors` *(array)*: A list of CSS selectors.
-
-#### Output
-1. `element` The observed element.
-2. `details` Details about the mutation. `details.type` will equal `matched` if the node was added or `unmatched` if it was removed.
-
-#### Example
-```js
-conduit.observe(document.body)
-  .follow(['#main', 'section', 'ul#list', 'li.list-item'])
-  .each(function(node, details) {
-    console.log(node, details.type)
-  })
-```
-
-----
-
-### `.text(matcher)`
-Observes text nodes that contain a substring.
-
-#### Arguments
-1. `matcher` *(string|RegExp)*: A substring to search for.
-
-#### Output
-1. `element` The observed text node.
-2. `details` Details about the mutation. `details.type` will equal `matched` if the node contains the substring, or `unmatched` if the substring was removed.
-
-#### Example
-```js
+// log text nodes that contain 'lorem ipsum'
 conduit.observe(document.body)
   .text('lorem ipsum')
   .each(function(node, details) {
-    console.log(node.data, details.type)
+    if (details.type == 'change')
+      console.log('text changed.', node.data)
   })
 ```
 
-----
+### listen
 
-## Utilities
+##### `route.listen(eventName)`
+Observes an element for events.
 
-### `.listen(eventName)`
-Observes elements that dispatch a specific event.
+`eventName` is the type of event to listen for. Outputs `(element, eventObject)` where `element` is the node that dispatched the event and `eventObject` is the event object.
 
-#### Arguments
-1. `eventName` *(string)*: An eventObject's name.
-
-#### Output
-1. `element` The observed element.
-2. `eventObject` The event.
-
-#### Example
+#### example
 ```js
-junction.listen('click').each(doSomething)
+// attach click handlers to images that are added to the document
+conduit.observe(document.body)
+  .filter('img')
+  .listen('click')
+  .each(function(element, eventObject) {
+    console.assert(element.nodeName == 'IMG')
+    console.assert(eventObject.type == 'click')
+  })
 ```
 
-----
+### each
 
-### `.each(callback)`
-Executes a function on each result. Useful as the last route (or the pipeline's output).
+##### `route.each(callback)`
+Useful as a last route (or a pipeline's output). `callback` is invoked with the output of the route before it.
 
-#### Arguments
-1. `callback` *(function)*: A function to invoke with output from the previous route.
-
-#### Example
+#### example
 
 ```js
-junction.each(doSomething)
+// log divs that are added to the document
+conduit.observe(document.body).filter('div').each(logElement)
+
+function logElement(element, details) {
+  console.log('el: %o, type: %s', element, details.type)
+}
+
+setInterval(() => {
+  document.body.appendChild(document.createElement('div'))
+}, 1000)
 ```
+
+## Acknowledgments
+Inspiration for Conduit comes from [stimulus](https://github.com/stimulusjs/stimulus/).
