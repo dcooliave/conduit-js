@@ -146,9 +146,9 @@ Specify a valid CSS selector as `selector`. Outputs `(element, details)` where `
 #### example
 ```js
 // log anchors and divs that are added to the document
-conduit.observe(document.body).filter('a, div').each(printUrl)
+conduit.observe(document.body).filter('a, div').each(logElement)
 
-function printUrl(element, details) {
+function logElement(element, details) {
   if (details.type == 'match')
     console.log(element)
 }
