@@ -12,6 +12,11 @@ conduit.observe(document.body)
 ## Under the hood
 Conduit connects mutation observers together to form a pipeline for complex mutation processing.
 
+## Usage
+```js
+import conduit from 'conduit.js'
+```
+
 ## API
 
 - [conduit](#conduit)
