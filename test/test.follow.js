@@ -1,5 +1,13 @@
+import conduit from '../lib/conduit.js'
+import route from '../lib/follow.js'
+import { testRoute, expectResult, nextTick } from './util.js'
+
 describe('#follow()', function() {
   let junction, container, target
+
+  before(function() {
+    conduit.define('follow', route)
+  })
 
   beforeEach(function() {
     junction = conduit.junction()

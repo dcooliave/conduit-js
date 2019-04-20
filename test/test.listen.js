@@ -1,5 +1,13 @@
+import conduit from '../lib/conduit.js'
+import route from '../lib/listen.js'
+import { testRoute, expectResult, nextTick } from './util.js'
+
 describe('#listen()', function() {
   let junction, container
+
+  before(function() {
+    conduit.define('listen', route)
+  })
 
   beforeEach(function() {
     junction = conduit.junction()

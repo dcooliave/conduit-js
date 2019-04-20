@@ -1,5 +1,13 @@
+import conduit from '../lib/conduit.js'
+import route from '../lib/filter.js'
+import { testRoute, expectResult, nextTick } from './util.js'
+
 describe('#filter()', function() {
   let junction, container, target
+
+  before(function() {
+    conduit.define('filter', route)
+  })
 
   beforeEach(function() {
     junction = conduit.junction()

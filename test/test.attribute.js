@@ -1,5 +1,13 @@
+import conduit from '../lib/conduit.js'
+import route from '../lib/attribute.js'
+import { testRoute, expectResult, nextTick } from './util.js'
+
 describe('#attribute()', function() {
   let junction, container
+
+  before(function() {
+    conduit.define('attribute', route)
+  })
 
   beforeEach(function() {
     junction = conduit.junction()
