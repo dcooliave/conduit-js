@@ -235,4 +235,4 @@ setInterval(() => {
 ```
 
 ## Acknowledgments
-Inspiration for Conduit comes from [stimulus](https://github.com/stimulusjs/stimulus/).
+Inspiration for Conduit comes from [stimulus](https://github.com/hotwired/stimulus).
