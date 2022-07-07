@@ -81,9 +81,8 @@ function doSomething() {
   let route = conduit.junction({ observe, disconnect })
 
   function observe(element, details) {
-    observeSomething(element, (target, data) => {
-      this.matched(target, { ...data, abc: 'xyz' })
-    })
+    checkSomething(element, details)
+      .then(() => this.matched(element, details))
   }
 
   function disconnect() {
@@ -116,7 +115,9 @@ conduit.define('paint', function(foreground, background) {
   })
 })
 
-conduit.observe(document.body).filter('div').paint('red', 'blue')
+conduit.observe(document.body)
+  .filter('div')
+  .paint('red', 'blue')
 ```
 
 ### attribute
@@ -129,11 +130,11 @@ Set `name` to the attribute name. Outputs `(element, details)` where `element` i
 #### example
 ```js
 // log body when its 'theme' changes
-conduit.observe(document.body).attribute('theme').each(eachResult)
-
-function eachResult(element, details) {
-  console.log(element, details)
-}
+conduit.observe(document.body)
+  .attribute('theme')
+  .each(function(element, details) {
+    console.log(element, details)
+  })
 
 document.body.setAttribute('theme', 'red')
 document.querySelector('button').onclick = function() {
@@ -151,12 +152,11 @@ Specify a valid CSS selector as `selector`. Outputs `(element, details)` where `
 #### example
 ```js
 // log anchors and divs that are added to the document
-conduit.observe(document.body).filter('a, div').each(logElement)
-
-function logElement(element, details) {
-  if (details.type == 'match')
-    console.log(element)
-}
+conduit.observe(document.body)
+  .filter('a, div')
+  .each(function(element, details) {
+    console.log(element, details)
+  })
 ```
 
 ### follow
@@ -169,12 +169,12 @@ Specify an array of valid CSS selectors. Outputs `(element, details)` where `ele
 #### example
 ```js
 // log anchors that are added to a subtree
-let route = conduit.observe(document.body).follow(['main', 'section', 'div', 'a.nav'])
-
-route.each(function(element, details) {
-  if (details.type == 'match')
-    console.assert(element.matches('main > section > div > a.nav'))
-})
+conduit.observe(document.body)
+  .follow(['main', 'section', 'div', 'a'])
+  .each(function(element, details) {
+    console.assert(details.type == 'match')
+    console.assert(element.matches('main > section > div > a'))
+  })
 ```
 
 ### text
@@ -223,11 +223,11 @@ Useful as a last route (or a pipeline's output). `callback` is invoked with the 
 
 ```js
 // log divs that are added to the document
-conduit.observe(document.body).filter('div').each(logElement)
-
-function logElement(element, details) {
-  console.log('el: %o, type: %s', element, details.type)
-}
+conduit.observe(document.body)
+  .filter('div')
+  .each(function(element, details) {
+    console.log('el: %o, type: %s', element, details.type)
+  })
 
 setInterval(() => {
   document.body.appendChild(document.createElement('div'))
@@ -235,4 +235,4 @@ setInterval(() => {
 ```
 
 ## Acknowledgments
-Inspiration for Conduit comes from [stimulus](https://github.com/hotwired/stimulus).
+Inspiration for Conduit comes from [Stimulus](https://github.com/hotwired/stimulus).
